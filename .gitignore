@@ -1,0 +1,74 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Python / Backend
+backend/__pycache__/
+backend/*/__pycache__/
+backend/*/*/__pycache__/
+backend/*/*/*/__pycache__/
+backend/venv/
+backend/.venv/
+backend/.env
+backend/uploads/*
+!backend/uploads/.gitkeep
+backend/models/*.pth
+backend/models/*.bin
+backend/models/*.onnx
+
+# Environment variables / secrets
+.env
+.env.*
+!.env.example
+
+# Python environments
+.venv/
+venv/
+**/.venv/
+**/venv/
+
+# Python cache
+__pycache__/
+**/__pycache__/
+*.py[cod]
+
+# ML datasets
+datasets/
+data/
+**/datasets/
+**/data/
+
+# ML model weights / checkpoints
+*.pth
+*.pt
+*.ckpt
+*.safetensors
+*.onnx
+*.bin
+
+# Training outputs
+runs/
+checkpoints/
+outputs/
+tensorboard/
