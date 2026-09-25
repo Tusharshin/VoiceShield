@@ -17,10 +17,11 @@ class ModelService:
 
     def _detect_device(self) -> str:
         """
-        Detect compute hardware device:
+        Detect compute hardware device in priority order:
         1. Intel XPU
         2. NVIDIA CUDA
-        3. CPU fallback
+        3. Apple MPS
+        4. CPU fallback
         """
         if not TORCH_AVAILABLE or torch is None:
             return "cpu"
@@ -30,6 +31,8 @@ class ModelService:
                 return "xpu"
             elif torch.cuda.is_available():
                 return "cuda"
+            elif hasattr(torch, "backends") and hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+                return "mps"
             else:
                 return "cpu"
         except Exception:

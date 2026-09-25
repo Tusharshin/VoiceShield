@@ -160,7 +160,7 @@ export const DetectionPage: React.FC = () => {
         setRecordingTime((prev) => prev + 1);
       }, 1000);
     } catch (err) {
-      console.error('Microphone error');
+      console.error('Microphone error', err);
       setErrorState({
         category: 'PROCESSING_FAILED',
         message: 'Microphone permission denied or unavailable. Please allow microphone access in browser settings.',
