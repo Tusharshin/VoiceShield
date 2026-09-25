@@ -1,6 +1,4 @@
-export type AnalysisLabel = 'human' | 'ai_generated' | 'uncertain';
-
-export type AnalysisStatus = 'idle' | 'uploading' | 'processing' | 'success' | 'error';
+export type AnalysisStatus = 'idle' | 'uploading' | 'analyzing' | 'success' | 'error';
 
 export type ErrorCategory =
   | 'INVALID_FILE'
@@ -9,22 +7,25 @@ export type ErrorCategory =
   | 'PROCESSING_FAILED'
   | 'NETWORK_ERROR'
   | 'SERVER_ERROR'
+  | 'UNREACHABLE'
   | 'UNKNOWN_ERROR';
 
-export interface VoiceAnalysisRequest {
-  file: File;
+export interface AudioMetadata {
+  duration: number;
+  sample_rate: number;
+  num_samples: number;
+  format: string;
 }
 
-export interface VoiceAnalysisResponse {
-  label: AnalysisLabel;
-  confidence: number; // Percentage integer 0 - 100
-  duration?: number; // seconds
-  language?: string;
-  model?: string;
-  explanation?: string;
-  format?: string;
-  sampleRate?: string;
-  isDemo?: boolean;
+export interface BackendAnalysisResponse {
+  status: string;
+  prediction?: string; // "DEEPFAKE" | "REAL" | "fake" | "real"
+  label?: string;      // "DEEPFAKE" | "REAL" | "ai_generated" | "human"
+  confidence?: number; // percentage float, e.g. 100.0
+  model: string;       // "AASIST"
+  device: string;      // "xpu" | "cuda" | "cpu"
+  audio?: AudioMetadata;
+  message?: string;
 }
 
 export interface AnalysisError {
@@ -33,16 +34,14 @@ export interface AnalysisError {
 }
 
 export interface UIAnalysisResult {
+  isDeepfake: boolean;
   summaryLabel: string;
-  label: AnalysisLabel;
   confidence: number;
-  duration: number;
-  language: string;
-  format: string;
-  sampleRate: string;
   modelName: string;
-  explanation: string;
-  modelDetails: string;
-  limitations: string;
-  isDemo: boolean;
+  device: string;
+  duration: number;
+  sampleRate: number;
+  numSamples?: number;
+  format: string;
+  message?: string;
 }

@@ -13,13 +13,16 @@ import { Footer } from './components/Footer';
 import { SearchModal } from './components/SearchModal';
 import { AuthModal } from './components/AuthModal';
 import { DetectionPage } from './pages/DetectionPage';
+import { AuthProvider } from './context/AuthContext';
 
 function LandingPage({
   onSearchOpen,
   onSignInOpen,
+  onSignUpOpen,
 }: {
   onSearchOpen: () => void;
   onSignInOpen: () => void;
+  onSignUpOpen: () => void;
 }) {
   const navigate = useNavigate();
 
@@ -40,6 +43,7 @@ function LandingPage({
         onCheckVoiceClick={handleCheckVoiceNav}
         onSearchOpen={onSearchOpen}
         onSignInOpen={onSignInOpen}
+        onSignUpOpen={onSignUpOpen}
       />
       <main className="flex-grow">
         <Hero
@@ -59,22 +63,11 @@ function LandingPage({
   );
 }
 
-function DetectRouteWrapper({
-  onSearchOpen,
-  onSignInOpen,
-}: {
-  onSearchOpen: () => void;
-  onSignInOpen: () => void;
-}) {
+function DetectRouteWrapper() {
   const navigate = useNavigate();
 
   return (
     <>
-      <Navbar
-        onCheckVoiceClick={() => navigate('/detect')}
-        onSearchOpen={onSearchOpen}
-        onSignInOpen={onSignInOpen}
-      />
       <main className="flex-grow">
         <DetectionPage />
       </main>
@@ -86,47 +79,57 @@ function DetectRouteWrapper({
 export function App() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('signup');
 
   return (
-    <BrowserRouter>
-      <div className="min-h-screen bg-slate-50/40 text-slate-900 flex flex-col font-sans selection:bg-blue-100 selection:text-blue-900">
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <LandingPage
-                onSearchOpen={() => setIsSearchOpen(true)}
-                onSignInOpen={() => setIsAuthOpen(true)}
-              />
-            }
-          />
-          <Route
-            path="/detect"
-            element={
-              <DetectRouteWrapper
-                onSearchOpen={() => setIsSearchOpen(true)}
-                onSignInOpen={() => setIsAuthOpen(true)}
-              />
-            }
-          />
-        </Routes>
+    <AuthProvider>
+      <BrowserRouter>
+        <div className="min-h-screen bg-slate-50/40 text-slate-900 flex flex-col font-sans selection:bg-blue-100 selection:text-blue-900">
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <LandingPage
+                  onSearchOpen={() => setIsSearchOpen(true)}
+                  onSignInOpen={() => {
+                    setAuthMode('login');
+                    setIsAuthOpen(true);
+                  }}
+                  onSignUpOpen={() => {
+                    setAuthMode('signup');
+                    setIsAuthOpen(true);
+                  }}
+                />
+              }
+            />
+            <Route
+              path="/detect"
+              element={<DetectRouteWrapper />}
+            />
+            <Route
+              path="/dashboard"
+              element={<DetectRouteWrapper />}
+            />
+          </Routes>
 
-        {/* Modals */}
-        <SearchModal
-          isOpen={isSearchOpen}
-          onClose={() => setIsSearchOpen(false)}
-          onSelectTopic={(id) => {
-            const el = document.getElementById(id);
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-          }}
-        />
+          {/* Modals */}
+          <SearchModal
+            isOpen={isSearchOpen}
+            onClose={() => setIsSearchOpen(false)}
+            onSelectTopic={(id) => {
+              const el = document.getElementById(id);
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }}
+          />
 
-        <AuthModal
-          isOpen={isAuthOpen}
-          onClose={() => setIsAuthOpen(false)}
-        />
-      </div>
-    </BrowserRouter>
+          <AuthModal
+            isOpen={isAuthOpen}
+            onClose={() => setIsAuthOpen(false)}
+            initialMode={authMode}
+          />
+        </div>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 

@@ -2,17 +2,17 @@
  * Centralized VoiceShield Application Configuration
  */
 export const CONFIG = {
-  // Backend API URL (Empty by default, uses mock demo mode until FastAPI endpoint is set)
-  API_BASE_URL: import.meta.env.VITE_API_BASE_URL || '',
+  // Backend API URL (Default to 127.0.0.1:8001)
+  API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8001',
   
-  // Toggle for Demo / Mock mode
-  USE_MOCK: import.meta.env.VITE_USE_MOCK !== 'false',
+  // Toggle for Demo / Mock mode (Always false to ensure real AASIST backend usage)
+  USE_MOCK: false,
 
   // Audio Limits
   MAX_FILE_SIZE_MB: 50,
   MAX_FILE_SIZE_BYTES: 50 * 1024 * 1024,
-  SUPPORTED_FORMATS: ['mp3', 'wav', 'm4a', 'flac'],
+  SUPPORTED_FORMATS: ['mp3', 'wav', 'm4a', 'flac', 'mp4', 'webm', 'ogg'],
 
-  // Default Model Metadata Label for Demo Mode
-  DEFAULT_MODEL_LABEL: 'Demo Analysis',
+  // Default Model Metadata Label
+  DEFAULT_MODEL_LABEL: 'AASIST',
 };

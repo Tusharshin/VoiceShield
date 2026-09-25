@@ -1,4 +1,4 @@
-import type { VoiceAnalysisResponse } from '../types/voiceAnalysis';
+import type { BackendAnalysisResponse } from '../types/voiceAnalysis';
 
 export const PROCESSING_STAGES = [
   'Uploading audio',
@@ -15,7 +15,7 @@ export const PROCESSING_STAGES = [
 export async function mockAnalyzeVoice(
   file: File,
   onStageChange?: (stageIndex: number) => void
-): Promise<VoiceAnalysisResponse> {
+): Promise<BackendAnalysisResponse> {
   const totalStages = PROCESSING_STAGES.length;
 
   for (let i = 0; i < totalStages; i++) {
@@ -31,16 +31,18 @@ export async function mockAnalyzeVoice(
   const ext = file.name.split('.').pop()?.toUpperCase() || 'WAV';
 
   return {
-    label: isLikelyAI ? 'ai_generated' : 'human',
+    status: 'ok',
+    prediction: isLikelyAI ? 'DEEPFAKE' : 'REAL',
+    label: isLikelyAI ? 'DEEPFAKE' : 'REAL',
     confidence: isLikelyAI ? 92 : 96,
-    duration: Math.max(3, Math.min(30, Math.round(file.size / (1024 * 50)))),
-    language: 'Auto-Detected (Hindi / EN)',
-    format: ext,
-    sampleRate: '16 kHz',
-    model: 'Demo Analysis',
-    explanation: isLikelyAI
-      ? 'VoiceShield detected acoustic patterns that may be associated with synthetic speech.'
-      : 'VoiceShield detected natural pitch variation and continuous acoustic characteristics consistent with human speech.',
-    isDemo: true,
+    model: 'AASIST',
+    device: 'cpu',
+    audio: {
+      duration: Math.max(3, Math.min(30, Math.round(file.size / (1024 * 50)))),
+      sample_rate: 16000,
+      num_samples: 64000,
+      format: ext,
+    },
+    message: 'Analysis completed successfully.',
   };
 }

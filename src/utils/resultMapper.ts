@@ -1,41 +1,26 @@
-import type { VoiceAnalysisResponse, UIAnalysisResult, AnalysisLabel } from '../types/voiceAnalysis';
-import { CONFIG } from '../config';
+import type { BackendAnalysisResponse, UIAnalysisResult } from '../types/voiceAnalysis';
 
 /**
- * Maps raw backend/API response into safe, user-facing UI result structure.
- * Enforces probabilistic, neutral language.
+ * Maps real FastAPI AASIST backend response into UI Analysis Result format.
  */
-export function mapResultToUI(response: VoiceAnalysisResponse, fileName: string): UIAnalysisResult {
-  const labelMap: Record<AnalysisLabel, string> = {
-    human: 'Likely Human Voice',
-    ai_generated: 'Likely AI-generated',
-    uncertain: 'Unable to determine confidently',
-  };
+export function mapResultToUI(response: BackendAnalysisResponse, fallbackFileName: string): UIAnalysisResult {
+  const rawPred = (response.prediction || response.label || '').toUpperCase();
+  const isDeepfake = rawPred === 'DEEPFAKE' || rawPred === 'FAKE' || rawPred === 'AI_GENERATED';
 
-  const summaryLabel = labelMap[response.label] || 'Unable to determine confidently';
-  const ext = fileName.split('.').pop()?.toUpperCase() || 'WAV';
+  const summaryLabel = isDeepfake ? 'Likely AI-Generated Voice' : 'Likely Human Voice';
 
-  const defaultExplanation =
-    response.label === 'ai_generated'
-      ? 'VoiceShield detected acoustic patterns that may be associated with synthetic speech.'
-      : response.label === 'human'
-      ? 'VoiceShield detected natural pitch variation and continuous acoustic characteristics consistent with human speech.'
-      : 'Acoustic patterns exhibit mixed signals that cannot be definitively classified.';
+  const ext = response.audio?.format || fallbackFileName.split('.').pop()?.toUpperCase() || 'WAV';
 
   return {
+    isDeepfake,
     summaryLabel,
-    label: response.label,
-    confidence: response.confidence,
-    duration: response.duration || 10,
-    language: response.language || 'Auto-Detected (Hindi / EN)',
-    format: response.format || ext,
-    sampleRate: response.sampleRate || '16 kHz',
-    modelName: response.model || CONFIG.DEFAULT_MODEL_LABEL,
-    explanation: response.explanation || defaultExplanation,
-    modelDetails:
-      'Detailed model signals will appear here once the production inference engine is connected.',
-    limitations:
-      'Voice detection is probabilistic and should not be treated as absolute proof of authenticity.',
-    isDemo: response.isDemo ?? true,
+    confidence: typeof response.confidence === 'number' ? response.confidence : 0,
+    modelName: response.model || 'AASIST',
+    device: response.device || 'N/A',
+    duration: response.audio?.duration ?? 0,
+    sampleRate: response.audio?.sample_rate ?? 16000,
+    numSamples: response.audio?.num_samples,
+    format: ext,
+    message: response.message || 'Analysis completed successfully.',
   };
 }

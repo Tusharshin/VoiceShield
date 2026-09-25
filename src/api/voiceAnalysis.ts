@@ -1,39 +1,63 @@
 import { CONFIG } from '../config';
-import { postFormData } from './client';
-import { mockAnalyzeVoice } from './mockService';
 import { validateAudioFile } from '../utils/fileValidation';
-import type { VoiceAnalysisResponse } from '../types/voiceAnalysis';
+import type { BackendAnalysisResponse, AnalysisError } from '../types/voiceAnalysis';
 
 /**
- * Main Frontend Voice Analysis Entry Point.
- * 
- * Flow:
- * UI (/detect) -> analyzeVoice(file) -> API layer -> (Mock or FastAPI endpoint) -> Response
+ * Real VoiceShield Backend API Service.
+ *
+ * Sends audio file to FastAPI backend at:
+ * POST http://127.0.0.1:8001/api/v1/analyze
+ * using multipart/form-data with field "file".
  */
-export async function analyzeVoice(
-  file: File,
-  onStageChange?: (stageIndex: number) => void
-): Promise<VoiceAnalysisResponse> {
-  // 1. Centralized File Validation
+export async function analyzeVoice(file: File): Promise<BackendAnalysisResponse> {
+  // 1. Validate file locally before sending
   const validationError = validateAudioFile(file);
   if (validationError) {
     throw validationError;
   }
 
-  // 2. Delegate to Mock if in Demo mode or if API_BASE_URL is not configured
-  if (CONFIG.USE_MOCK || !CONFIG.API_BASE_URL) {
-    return await mockAnalyzeVoice(file, onStageChange);
-  }
+  const baseUrl = CONFIG.API_BASE_URL || 'http://127.0.0.1:8001';
+  const url = `${baseUrl}/api/v1/analyze`;
 
-  // 3. Real Backend API Request (POST /api/v1/analyze)
   const formData = new FormData();
-  formData.append('audio', file);
+  formData.append('file', file);
 
-  if (onStageChange) onStageChange(1); // Uploading/Preparing
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      body: formData,
+    });
 
-  const response = await postFormData<VoiceAnalysisResponse>('/api/v1/analyze', formData);
+    if (!response.ok) {
+      let errorMessage = `Server error (${response.status})`;
+      try {
+        const errorJson = await response.json();
+        if (errorJson && errorJson.message) {
+          errorMessage = errorJson.message;
+        }
+      } catch {
+        // Ignore JSON parse error
+      }
 
-  if (onStageChange) onStageChange(4); // Preparing result
+      const err: AnalysisError = {
+        category: response.status >= 500 ? 'SERVER_ERROR' : 'PROCESSING_FAILED',
+        message: errorMessage,
+      };
+      throw err;
+    }
 
-  return response;
+    const data: BackendAnalysisResponse = await response.json();
+    return data;
+  } catch (error: any) {
+    if (error && error.category) {
+      throw error;
+    }
+
+    // Unreachable / network connection error
+    const unreachableErr: AnalysisError = {
+      category: 'UNREACHABLE',
+      message: 'VoiceShield backend is not running. Please start the FastAPI server.',
+    };
+    throw unreachableErr;
+  }
 }

@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Search, Globe, Menu, X, ArrowRight, Shield, ChevronDown } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 interface NavbarProps {
   onCheckVoiceClick: () => void;
   onSearchOpen: () => void;
   onSignInOpen: () => void;
+  onSignUpOpen?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onCheckVoiceClick, onSearchOpen, onSignInOpen }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onCheckVoiceClick, onSearchOpen, onSignInOpen, onSignUpOpen }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -218,18 +221,39 @@ export const Navbar: React.FC<NavbarProps> = ({ onCheckVoiceClick, onSearchOpen,
               )}
             </div>
 
-            {/* Sign In */}
-            <button
-              onClick={onSignInOpen}
-              className="px-3 py-1.5 text-xs font-semibold text-slate-700 hover:text-blue-600 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 rounded-lg"
-            >
-              Sign In
-            </button>
+            {/* Sign In & Sign Up */}
+            {user ? (
+              <button
+                onClick={() => navigate('/detect')}
+                className="flex items-center space-x-2 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold rounded-xl border border-blue-200 transition-colors"
+              >
+                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span>{user.name}</span>
+                <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-blue-600 text-white">
+                  {user.accountType === 'organization' ? 'Org' : 'User'}
+                </span>
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={onSignInOpen}
+                  className="px-3 py-1.5 text-xs font-semibold text-slate-700 hover:text-blue-600 transition-colors rounded-lg"
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={onSignUpOpen || onSignInOpen}
+                  className="px-3 py-1.5 text-xs font-bold text-blue-600 hover:bg-blue-50 border border-blue-200 transition-colors rounded-xl"
+                >
+                  Sign Up
+                </button>
+              </>
+            )}
 
             {/* Primary CTA */}
             <button
               onClick={onCheckVoiceClick}
-              className="group inline-flex items-center justify-center space-x-1.5 px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-lg shadow-sm shadow-blue-600/20 transition-all duration-200 transform hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+              className="group inline-flex items-center justify-center space-x-1.5 px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-xl shadow-sm shadow-blue-600/20 transition-all duration-200 transform hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
             >
               <span>Check a Voice</span>
               <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
