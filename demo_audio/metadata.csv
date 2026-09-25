@@ -1,0 +1,7 @@
+filename,actual_label,dataset,source_path,sample_rate,duration_seconds
+fake_01.wav,FAKE,SpeechAntiSpoofingBenchmarks/DeepVoice,FAKE/Obama-to-Biden_frag0.wav,16000,7.0
+fake_02.wav,FAKE,SpeechAntiSpoofingBenchmarks/DeepVoice,FAKE/Obama-to-Biden_frag1.wav,16000,8.0
+fake_03.wav,FAKE,SpeechAntiSpoofingBenchmarks/DeepVoice,FAKE/Obama-to-Biden_frag10.wav,16000,5.0
+real_01.wav,REAL,SpeechAntiSpoofingBenchmarks/DeepVoice,REAL/biden-original_frag0.wav,16000,4.0
+real_02.wav,REAL,SpeechAntiSpoofingBenchmarks/DeepVoice,REAL/biden-original_frag1.wav,16000,5.0
+real_03.wav,REAL,SpeechAntiSpoofingBenchmarks/DeepVoice,REAL/biden-original_frag10.wav,16000,6.0
