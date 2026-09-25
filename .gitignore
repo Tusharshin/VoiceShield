@@ -74,4 +74,4 @@ outputs/
 tensorboard/
 
 # Demo audio samples
-demo_audio/*.wav
+demo_audio/**/*.wav
