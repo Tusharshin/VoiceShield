@@ -1,0 +1,5 @@
+﻿[tool.pyrefly]
+python-interpreter-path = 'C:\Users\dell\voiceshield-env\Scripts\python.exe'
+python-version = "3.11"
+python-platform = "Windows"
+search-path = [".", "backend", "ai/cnn/scripts", "ai/cnn/models"]

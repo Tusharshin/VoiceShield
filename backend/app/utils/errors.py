@@ -1,5 +1,6 @@
 from fastapi import Request
 from fastapi.responses import JSONResponse
+from typing import cast
 
 class AppError(Exception):
     def __init__(self, code: str, message: str, status_code: int = 400):
@@ -28,16 +29,17 @@ class ModelNotLoadedError(AppError):
     def __init__(self, message: str = "AASIST model weights are not loaded."):
         super().__init__(code="MODEL_NOT_LOADED", message=message, status_code=503)
 
-async def app_exception_handler(request: Request, exc: AppError):
+async def app_exception_handler(request: Request, exc: Exception):
+    app_error = cast(AppError, exc)
+
     return JSONResponse(
-        status_code=exc.status_code,
+        status_code=app_error.status_code,
         content={
             "status": "error",
-            "code": exc.code,
-            "message": exc.message,
+            "code": app_error.code,
+            "message": app_error.message,
         },
     )
-
 async def generic_exception_handler(request: Request, exc: Exception):
     # Hide tracebacks from end-users, log internally
     return JSONResponse(
